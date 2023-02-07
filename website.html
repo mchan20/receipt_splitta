@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+
+<!-- You can just run this html file in your browser and it should work -->
+<html>
+  <head>
+    <title>JavaScript Input</title>
+    <script>
+		let num_guests = 0;
+
+		function getResult(){
+
+			for (let j = 1;j <= num_guests;j++) {
+				let total = 0;
+				var inputs = document.getElementsByClassName('price price_'+j)
+				for (let i = 0; i < inputs.length;i++) {
+					console.log(inputs[i].className);
+					console.log(inputs[i].value);
+					total = total + Number(inputs[i].value);
+					
+				}
+				var bruh = document.getElementById("output"+j);
+				bruh.innerText = total;
+				bruh.appendChild(document.createElement("br"));
+				
+			}
+		}
+
+		// function get_ind_bills(){
+		// 	for (let i = 1; i<=num_guests;i++) {
+
+		// 	}
+		// }
+
+		function getGuests(){
+			let inputElement = document.getElementById('num-input');
+			num_guests = inputElement.value;
+			
+			let outputElement = document.getElementById('output');
+			outputElement.innerText = 'You have ' + num_guests + ' guests.';
+		}
+
+		function hideStuff(class_name) {
+			var inputs = document.getElementsByClassName(class_name)
+			for (let i = 0; i < inputs.length;i++) {
+				inputs[i].style.display = 'none';
+			}
+		}
+
+		function showStuff(class_name) {
+			var inputs = document.getElementsByClassName(class_name)
+			for (let i = 0; i < inputs.length;i++) {
+				inputs[i].style.display = 'block';
+			}
+		}
+
+		function addGuest() {
+			showStuff("guest_field")
+			for (var i = 1;i<num_guests;i++) {
+				let elem = document.getElementById("guest_"+i);
+				let clone = elem.cloneNode(true);
+
+				let form = clone.children.item(0);
+				form.id = 'form_'+Number(i+1);
+
+
+				for (child of form.children) {
+					if ((child.tagName == "INPUT") && child.classList.contains('price')) {
+						child.className = 'price price_'+Number(i+1);
+					}
+					else if ((child.tagName == "INPUT") && child.classList.contains('dish')) {
+						child.className = 'dish dish_'+Number(i+1);
+					}
+					console.log(child.className);
+				}
+
+				// console.log(clone.children.item(0).tagName);
+				// for (const child of clone.children) {
+  				// 	console.log(child.tagName);
+				// }
+
+				clone.id = 'guest_'+Number(i+1);
+				elem.after(clone);
+			}
+		}
+
+		function add(id_name) {
+			// have to get the number
+			console.log(id_name)
+
+			var added = document.createElement("div");
+			document.getElementById(id_name).appendChild(added);
+			added.setAttribute("id", "Dish" + document.getElementById(id_name).childElementCount);
+
+			let guest = id_name.replace("form_","")
+
+			// add the two input fields
+			// add the dish 
+			var dish = document.createElement("input")
+			dish.setAttribute("type", "text");
+			dish.setAttribute("class", "dish dish_"+guest)
+			added.appendChild(dish);
+
+			// add the price
+			var price = document.createElement("input")
+			price.setAttribute("type", "number");
+			price.setAttribute("class", "price price_"+guest)
+			added.appendChild(price);
+
+
+			// added.appendChild(document.createElement("br"));
+		}
+
+    </script>
+  </head>
+  <body>
+	<!-- Inputting the number of guests -->
+	<div class = "guest_input">
+		<p> Hello! Input the number of guests.</p>
+		<input id="num-input" type="number"/>
+		<button onclick="getGuests(); hideStuff('guest_input'); addGuest();">
+			Submit!
+		</button>
+	</div>
+    <p id="output"> </p>
+
+	<!-- I need to figure out how to make a variable number of divs form for the number of guests. -->
+	<div class="guest_field" style="display: none;" > 
+
+		<!-- Inputting the dishes for each guest -->
+		<div id="guest_1" class="dishes_form">
+			<form id="form_1" autocomplete="off">
+				Dish Name: &emsp;&emsp;&emsp;&emsp; Price
+				<br>
+					<input type="text" class="dish dish_1"><input type="number" class="price price_1">
+				<br>
+			</form>
+
+			<button onclick="add(this.parentNode.children.item(0).id);">Add</button>
+			<br>
+			<br>
+		</div>
+		<!-- ; hideStuff('guest_field') -->
+		<button onclick="getResult();"> 
+			Submit!
+		</button>
+
+	</div>
+
+	<div id="output1"> </div>
+	<div id="output2"> </div>
+	<div id="output3"> </div>
+	<div id="output4"> </div>
+	<div id="output5"> </div>
+	<div id="output6"> </div>
+  </body>
+</html>
