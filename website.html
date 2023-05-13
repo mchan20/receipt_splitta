@@ -3,33 +3,91 @@
 <!-- You can just run this html file in your browser and it should work -->
 <html>
   <head>
-    <title>JavaScript Input</title>
-    <script>
-		let num_guests = 0;
-
-		function getResult(){
-
-			for (let j = 1;j <= num_guests;j++) {
-				let total = 0;
-				var inputs = document.getElementsByClassName('price price_'+j)
-				for (let i = 0; i < inputs.length;i++) {
-					console.log(inputs[i].className);
-					console.log(inputs[i].value);
-					total = total + Number(inputs[i].value);
-					
-				}
-				var bruh = document.getElementById("output"+j);
-				bruh.innerText = total;
-				bruh.appendChild(document.createElement("br"));
-				
-			}
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt Splitta</title>
+	<style>
+		input[type="number"] {
+  			width: 100px;
+			height: 30px;
+			box-sizing: border-box;
 		}
 
-		// function get_ind_bills(){
-		// 	for (let i = 1; i<=num_guests;i++) {
+		textarea {
+			font-size: 16px;
+		}
 
-		// 	}
-		// }
+		p {
+			font-size: 19px;
+		}
+
+		body {
+			font-size: 19px;
+		}
+		
+		.submit_everything {
+			font-size: 25px;
+		}
+
+		.form {
+			display: inline-block;
+		}
+
+		.guest_header {
+			display: inline-block;
+		}
+
+		table {
+			font-family: arial, sans-serif;
+			border-collapse: collapse;
+			width: 100%;
+		}
+
+		td, th {
+			border: 1px solid #dddddd;
+			text-align: left;
+			padding: 8px;
+		}
+
+		tr:nth-child(even) {
+			background-color: #dddddd;
+		}
+	</style>
+
+    <script>
+		let num_guests = 0;
+		let total_price = 0;
+		let tip = 0;
+		let tax = 0;
+
+		function getResult(){
+			// loop through and find the individual bills for the guests
+
+			total = 0;
+			for (let j = 1;j <= num_guests;j++) {
+				ind_total = get_ind_bills(j);
+				total = total + ind_total;
+				console.log(total);
+				// var bruh = document.getElementById("output"+j);
+				// bruh.innerText = total;
+				// bruh.appendChild(document.createElement("br"));
+			}
+			total_price = total;
+
+			// for(let i = 1;i<=num_guests;i++) {
+			// 	var bruh = document.getElementById("output"+i);
+			// 	bruh.innerText = "Guest "+ i + "\'s" + " percentage of the tip/tax is: " + Number(parseFloat(get_ind_bills(i)) / parseFloat(total_price));
+			// 	bruh.appendChild(document.createElement("br"));
+			// }
+		}
+
+		function get_ind_bills(guest_num){
+			let total = 0;
+			var inputs = document.getElementsByClassName('price price_'+guest_num)
+			for (let i = 0; i < inputs.length;i++) {
+				total = total + Number(inputs[i].value);
+			}
+			return total;
+		}
 
 		function getGuests(){
 			let inputElement = document.getElementById('num-input');
@@ -54,29 +112,29 @@
 		}
 
 		function addGuest() {
-			showStuff("guest_field")
+			showStuff("guest_field");
+			showStuff("tips");
+			showStuff("taxes");
+			showStuff("submit_everything");
 			for (var i = 1;i<num_guests;i++) {
 				let elem = document.getElementById("guest_"+i);
 				let clone = elem.cloneNode(true);
 
-				let form = clone.children.item(0);
-				form.id = 'form_'+Number(i+1);
+				// first child is guest_header
+				let header = clone.children.item(0);
+				header.className = 'guest_header guest_header_'+Number(i+1);
+				header.innerText = "Guest "+Number(i+1);
 
 
-				for (child of form.children) {
-					if ((child.tagName == "INPUT") && child.classList.contains('price')) {
-						child.className = 'price price_'+Number(i+1);
-					}
-					else if ((child.tagName == "INPUT") && child.classList.contains('dish')) {
-						child.className = 'dish dish_'+Number(i+1);
-					}
-					console.log(child.className);
-				}
+				// the next is the input field (comprised of 'price' and input)
+				let fields = clone.children.item(1);
+				fields.className = "form";
+				fields.id = 'form_'+Number(i+1);
 
-				// console.log(clone.children.item(0).tagName);
-				// for (const child of clone.children) {
-  				// 	console.log(child.tagName);
-				// }
+				//access the internal child
+				let input = fields.children.item(1);
+				// we use a class because we want multipe of the same 'price1' to sum up
+				input.className = 'price price_'+Number(i+1);
 
 				clone.id = 'guest_'+Number(i+1);
 				elem.after(clone);
@@ -91,23 +149,156 @@
 			document.getElementById(id_name).appendChild(added);
 			added.setAttribute("id", "Dish" + document.getElementById(id_name).childElementCount);
 
-			let guest = id_name.replace("form_","")
+			let guest = id_name.replace("form_","");
 
-			// add the two input fields
 			// add the dish 
-			var dish = document.createElement("input")
-			dish.setAttribute("type", "text");
-			dish.setAttribute("class", "dish dish_"+guest)
-			added.appendChild(dish);
+			// var dish = document.createElement("input")
+			// dish.setAttribute("type", "text");
+			// dish.setAttribute("class", "dish dish_"+guest)
+			// added.appendChild(dish);
 
 			// add the price
-			var price = document.createElement("input")
+			var price = document.createElement("input");
 			price.setAttribute("type", "number");
-			price.setAttribute("class", "price price_"+guest)
+			price.setAttribute("class", "price price_"+guest);
 			added.appendChild(price);
 
 
 			// added.appendChild(document.createElement("br"));
+		}
+
+		function submit_tip() {
+			var ele = document.getElementsByName('tip');
+            
+			let val;
+            for(i = 0; i < ele.length; i++) {
+                if(ele[i].checked) {
+                	val = ele[i].value;
+				}
+            }
+			
+			let output_1 = document.getElementById('tip_output_1');
+			output_1.innerText = "You have selected: " + val;
+
+			let amt = document.getElementById("tip_amount");
+
+			if (val == "Percentage") {
+				tip = amt.value * total_price * 0.01;
+			}
+			else tip = amt.value;
+
+			let output_2 = document.getElementById('tip_output_2');
+			output_2.innerText = "Your total Tip Amount is: " + tip;
+			
+			/*
+			var tip_area = document.getElementById("tip_output_zone");
+			tip_area.parentNode.removeChild(tip_area);
+
+			tip_area = document.createElement("div");
+			tip_area.id="tip_output_zone";
+			document.getElementById('tips').appendChild(tip_area);
+
+			for(let i = 1;i<=num_guests;i++) {
+				var bruh = document.createElement("p");
+				bruh.innerText = "Guest "+ i + "\'s" + " tip payment is: " + Number(tip * (parseFloat(get_ind_bills(i)) / parseFloat(total_price)));
+				bruh.className = "tip_ele";
+				tip_area.appendChild(bruh);
+			}
+			*/
+			console.log(tip_area.childElementCount);
+
+		}
+
+		function submit_tax() {
+			var ele = document.getElementsByName('tax');
+            
+			let val;
+            for(i = 0; i < ele.length; i++) {
+                if(ele[i].checked) {
+                	val = ele[i].value;
+				}
+            }
+			
+			let output_1 = document.getElementById('tax_output_1');
+			output_1.innerText = "You have selected: " + val;
+
+			let amt = document.getElementById("tax_amount");
+
+			if (val == "Percentage") {
+				tax = amt.value * total_price * 0.01;
+			}
+			else tax = amt.value;
+
+			
+			let output_2 = document.getElementById('tax_output_2');
+			output_2.innerText = "Your total Tip Amount is: " + tax;
+			
+
+			/*
+			var tax_area = document.getElementById("tax_output_zone");
+			tax_area.parentNode.removeChild(tax_area);
+
+			tax_area = document.createElement("div");
+			tax_area.id="tax_output_zone";
+			document.getElementById('taxes').appendChild(tax_area);
+
+			for(let i = 1;i<=num_guests;i++) {
+				var bruh = document.createElement("p");
+				bruh.innerText = "Guest "+ i + "\'s" + " tax payment is: " + Number(tax * (parseFloat(get_ind_bills(i)) / parseFloat(total_price)));
+				bruh.className = "tax_ele";
+				tax_area.appendChild(bruh);
+			}
+			*/
+			console.log(tax_area.childElementCount);
+
+		}
+
+		function submit_everything() {
+			var bruh = document.getElementById("output3");
+
+			console.log("hiya");
+			for(let i = 1;i<=num_guests;i++) {
+				var added = document.createElement("div");
+				bruh.appendChild(added);
+
+				let percentage = Number(parseFloat(get_ind_bills(i)) / parseFloat(total_price));
+				let tip_amt = Number(tip * (parseFloat(get_ind_bills(i)) / parseFloat(total_price)));
+				let tax_amt = Number(tax * (parseFloat(get_ind_bills(i)) / parseFloat(total_price)));
+
+				added.innerText = "Guest "+ i + "\'s" + " full payment is: " + Number(get_ind_bills(i) + tax_amt + tip_amt);
+				
+				added.appendChild(document.createElement("br"));
+				added.appendChild(document.createElement("br"));
+			}
+
+		}
+
+		function submit_everything_v2() {
+			//table version
+			var output_table = document.getElementById("output_table");
+			var bodyRef = output_table.getElementsByTagName('tbody')[0]; 
+			bodyRef.innerHTML = '';
+
+			for(let i = 1;i<=num_guests;i++) {
+
+				// get statistics
+				let dish_total = parseFloat(get_ind_bills(i))
+				let percentage = Number(dish_total / parseFloat(total_price));
+				let tip_amt = Number(tip * (dish_total / parseFloat(total_price)));
+				let tax_amt = Number(tax * (dish_total / parseFloat(total_price)));
+
+				let total = Number(dish_total + tax_amt + tip_amt);
+				// added.innerText = "Guest "+ i + "\'s" + " full payment is: " + Number(get_ind_bills(i) + tax_amt + tip_amt);
+				
+				//insert row at end of table
+				var bodyRef = output_table.getElementsByTagName('tbody')[0]; 
+				let newRow = bodyRef.insertRow(-1);
+
+				var myHtmlContent = `<td> Guest ${i} </td> <td> ${dish_total} </td> <td> ${tip_amt} </td> <td> ${tax_amt} </td> <td> ${total} </td>`
+				newRow.innerHTML = myHtmlContent;
+			}
+
+			//
 		}
 
     </script>
@@ -125,32 +316,113 @@
 
 	<!-- I need to figure out how to make a variable number of divs form for the number of guests. -->
 	<div class="guest_field" style="display: none;" > 
+		<h1> Guest Input</h1>
 
 		<!-- Inputting the dishes for each guest -->
 		<div id="guest_1" class="dishes_form">
-			<form id="form_1" autocomplete="off">
-				Dish Name: &emsp;&emsp;&emsp;&emsp; Price
+			<h3 class="guest_header guest_header_1"> Guest 1 </h3>
+			<div class="form" id="form_1" autocomplete="off">
+				Price
 				<br>
-					<input type="text" class="dish dish_1"><input type="number" class="price price_1">
+					<input type="number" class="price price_1">
 				<br>
-			</form>
-
-			<button onclick="add(this.parentNode.children.item(0).id);">Add</button>
+			</div>
+			<button onclick="add(this.parentNode.children.item(1).id);">Add</button>
 			<br>
 			<br>
 		</div>
+		
 		<!-- ; hideStuff('guest_field') -->
-		<button onclick="getResult();"> 
-			Submit!
-		</button>
+		<button onclick="getResult(); showStuff('dishes_confirm');"> 
+			Submit Dishes!
+		</button> <p class="dishes_confirm" style="display: none;"> Confirmed Submission! </p>
+	</div>
+
+	<br>
+
+	<div id="tips" class="tips" style="display: none;"> 
+		<div class="tip_type_selection_input"> 
+			<h1> Tip Type Selection</h1>
+			<p> Would you like to enter a tip percentage or a tip value?</p>
+			<form id="tip_type_form" autocomplete="off">
+				<input type="radio" name="tip" id="tip_percentage" value="Percentage">
+				<label for="tip_percentage">Percentage</label><br>
+				<input type="radio" name="tip" id="tip_value" value="Value">
+				<label for="tip_value">Value</label><br>
+			</form>
+		</div>
+		<p id="tip_output_1"> </p>
+
+		<h4 class="tip_header"> Tip Amount (If percentage, input number excluding the % sign.)</h4>
+		<input type="number" class="tip_value_amount" id="tip_amount">
+
+		<button onclick="submit_tip()">Submit Tip</button>
+		<br>
+
+		<p id="tip_output_2"> </p>
+		<div id="tip_output_zone"> </div> 
 
 	</div>
 
-	<div id="output1"> </div>
-	<div id="output2"> </div>
-	<div id="output3"> </div>
-	<div id="output4"> </div>
-	<div id="output5"> </div>
-	<div id="output6"> </div>
+	<br>
+
+	<div id="taxes" class="taxes" style="display: none;"> 
+		<div class="tax_type_selection_input"> 
+			<h1> Tax Type Selection</h1>
+			<p> Would you like to enter a tax percentage or a tax value?</p>
+			<form id="tax_type_form" autocomplete="off">
+				<input type="radio" name="tax" id="tax_percentage" value="Percentage">
+				<label for="tax_percentage">Percentage</label><br>
+				<input type="radio" name="tax" id="tax_value" value="Value">
+				<label for="tax_value">Value</label><br>
+			</form>
+		</div>
+		<p id="tax_output_1"> </p>
+
+		<h4 class="tax_header"> Tax Amount (If percentage, input number excluding the % sign.)</h4>
+		<input type="number" class="tax_value_amount" id="tax_amount">
+
+		<button onclick="submit_tax()">Submit Tax</button>
+		<br>
+
+		<p id="tax_output_2"> </p>
+		<div id="tax_output_zone"> </div> 
+	</div>
+
+	<button class="submit_everything" onclick="submit_everything_v2(); showStuff('everything_result');" style="display: none;">Submit Everything</button>
+
+
+	<h1 class="everything_result" style="display: none;"> Splitted Bill</h1>
+	<div id="output1"> </div> <!-- Tip Output -->
+
+	<div id="output2"> </div> <!-- Tax Output -->
+
+	<div class="everything_result" style="display: none;" id="output3"> 
+		<table id="output_table">
+			<thead>
+				<tr>
+					<th> Guest Number </th>
+					<th> Dish Total </th>
+					<th> Tip </th>
+					<th> Tax </th>
+					<th> Total </th>
+				</tr>
+			</thead>
+			<tbody>
+
+			</tbody>
+		</table>
+
+	</div> <!-- Rest Output-->
+
+
+
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
   </body>
 </html>
